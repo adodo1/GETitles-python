@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os, sys, requests, struct
+import os, sys, requests, struct, zlib
 
 # urls:
 # kh.google.com/dbRoot.v5 < 秘钥和地图版本信息
 # kh.google.com/flatfile?q2-0-q.705 < QTree数据
 # kh.google.com/flatfile?f1-030-i.704 < 瓦片图像
+# /dbRoot.v5?hl=zh-hans-cn&gl=cn&output=proto&cv=5.2.1.1588&ct=free
 # 1. 
 
 def Eval(fname, key):
@@ -119,10 +120,9 @@ if __name__ == '__main__':
     print 'GE Tiles.'
     print 'Encode: %s' %  sys.getdefaultencoding()
 
-    
     # 解密瓦片数据
     #keydata = ReadKEY('data/key.bin')
-    #imgdata = Eval('data/flatfile-f1-021031102113-i.704', keydata)
+    #imgdata = Eval('data/_flatfile-f1c-0201202-t.705', keydata)
     #f = open('out.jpg', 'wb')
     #f.write(imgdata)
     #f.flush()
@@ -133,17 +133,25 @@ if __name__ == '__main__':
 
     # 瓦片坐标和四叉树互转
     #print Tile2QuadKEY(3, 5, 3)
-    #print 'X:%s Y:%s Z:%s' % QuadKEY2Tile('0021')
+    #print 'X:%s Y:%s Z:%s' % QuadKEY2Tile('0201202')
 
     # 读取地图版本
     #print ReadVersion('data/dbRoot.v5')
 
     # 解码QTree数据
-    keydata = ReadKEY('data/key.bin')
-    zlibdata = Eval('data/flatfile-q2-02103110-q.705', keydata)
-    f = open('out.gz', 'wb')
-    f.write(zlibdata)
-    f.flush()
-    f.close
+    #keydata = ReadKEY('data/key.bin')
+    #zlibdata = Eval('data/_flatfile-q2-0201-q.705', keydata)
+
+    #f = open('data.z', 'wb')    # 解密后的压缩数据
+    #f.write(zlibdata)
+    #f.flush()
+    #f.close
+
+    #unzlibdata = zlib.decompress(str(zlibdata[8:]))
+    #f = open('data.u', 'wb')    # 解压后的真实数据
+    #f.write(unzlibdata)
+    #f.flush()
+    #f.close
+
 
     print 'OK.'
