@@ -28,6 +28,17 @@ def Eval(fname, key):
         if (index >= 1016): index = (index + 8) % 24
     return outdata
 
+def EvalData(data, key):
+    # 解码数据
+    outdata = bytearray(len(data))              # 创建一个结果数组
+    index = 16
+    for i in range(0, len(data)):
+        outdata[i] = ord(data[i]) ^ ord(key[index+8])
+        index += 1
+        if (index % 8 == 0): index += 16
+        if (index >= 1016): index = (index + 8) % 24
+    return outdata
+
 def ReadKEY(fname):
     # 读取KEY文件
     f = open(fname, 'rb+')
@@ -126,7 +137,7 @@ if __name__ == '__main__':
     #f = open('out.jpg', 'wb')
     #f.write(imgdata)
     #f.flush()
-    #f.close
+    #f.close()
 
     # 时间字符串转时间
     #Hex2Time(int('0xfa99b', 16))
@@ -139,19 +150,43 @@ if __name__ == '__main__':
     #print ReadVersion('data/dbRoot.v5')
 
     # 解码QTree数据
-    #keydata = ReadKEY('data/key.bin')
-    #zlibdata = Eval('data/_flatfile-q2-0201-q.705', keydata)
+    keydata = ReadKEY('data/key.bin')
+    zlibdata = Eval('data/_flatfile-q2-0-q.706', keydata)
 
-    #f = open('data.z', 'wb')    # 解密后的压缩数据
-    #f.write(zlibdata)
-    #f.flush()
-    #f.close
+    f = open('data.z', 'wb')    # 解密后的压缩数据
+    f.write(zlibdata)
+    f.flush()
+    f.close()
 
-    #unzlibdata = zlib.decompress(str(zlibdata[8:]))
-    #f = open('data.u', 'wb')    # 解压后的真实数据
-    #f.write(unzlibdata)
-    #f.flush()
-    #f.close
+    unzlibdata = zlib.decompress(str(zlibdata[8:]))
+    f = open('data.u', 'wb')    # 解压后的真实数据
+    f.write(unzlibdata)
+    f.flush()
+    f.close()
 
+    '''
+    # 下载L2级别影像进行测试
+    keydata = ReadKEY('data/key.bin')
+    
+    for x in range(0, 4):
+        for y in range(0, 4):
+            nums = Tile2QuadKEY(x, y, 2)
+            url = 'http://kh.google.com/flatfile?f1-{0}-i.705'.format(nums)
+            response = requests.get(url, stream=True)
+            data = response.raw.read()
+
+            savefile = 'out/_{0}.dat'.format(nums)
+            f = open(savefile, 'wb')
+            f.write(data)
+            f.flush()
+            f.close()
+
+            savefile = 'out/{0}.jpg'.format(nums)
+            data = EvalData(data, keydata)
+            f = open(savefile, 'wb')
+            f.write(data)
+            f.flush()
+            f.close()
+    '''
 
     print 'OK.'
